@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the source code from Git repository
+                git credentialsId: 'your-credentials-id', url: 'https://github.com/caligha/flask_web_app.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Install dependencies and run tests
+                sh 'pip install -r requirements.txt'
+                sh 'python test.py'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                // Run Ansible playbook for deployment
+                ansiblePlaybook(
+                    playbook: '/path/to/your/ansible/playbook.yml',
+                    inventory: 'path/to/your/ansible/inventory',
+                    credentialsId: 'your-ansible-credentials-id'
+                )
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up workspace
+            cleanWs()
+        }
+    }
+}
