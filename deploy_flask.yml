@@ -98,4 +98,8 @@
       systemd:
         name: uwsgi
         enabled: yes
-     
+        state: started
+        daemon_reload: yes
+      become: yes
+      tags:
+        - configure
