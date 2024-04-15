@@ -14,44 +14,32 @@
       when: ansible_distribution == "CentOS"
 
     - name: Update package cache (Amazon Linux)
-      yum:
+      dnf:
         name: '*'
         state: latest
       when: ansible_distribution == "Amazon"
 
     - name: Install Python 3 and pip (Ubuntu)
       package:
-        name: python3
+        name: 
+          - python3
+          - python3-pip  # Install pip for Python 3
         state: present
       when: ansible_distribution == "Ubuntu"
 
     - name: Install Python 3 and pip (CentOS)
       package:
-        name: python3
+        name:
+          - python3
+          - python3-pip
         state: present
       when: ansible_distribution == "CentOS"
 
     - name: Install Python 3 and pip (Amazon Linux)
-      package:
-        name: python3
-        state: present
-      when: ansible_distribution == "Amazon"
-
-    - name: Install pip for Python 3 (Ubuntu)
-      apt:
-        name: python3-pip
-        state: present
-      when: ansible_distribution == "Ubuntu"
-
-    - name: Install pip for Python 3 (CentOS)
       yum:
-        name: python3-pip
-        state: present
-      when: ansible_distribution == "CentOS"
-
-    - name: Install pip for Python 3 (Amazon Linux)
-      dnf:
-        name: python3-pip
+        name:
+          - python3
+          - python3-pip
         state: present
       when: ansible_distribution == "Amazon"
 
@@ -60,6 +48,10 @@
         name:
           - uwsgi  # Example dependency, adjust as needed
         state: present
+      become: yes
+      vars:
+        ansible_python_interpreter: /usr/bin/python3  # Specify Python interpreter explicitly
+      ignore_errors: yes  # Ignore errors in case Flask dependencies are already installed
 
     - name: Copy Flask app files
       synchronize:
