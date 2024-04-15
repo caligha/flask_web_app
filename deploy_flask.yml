@@ -1,43 +1,63 @@
----
-- name: Deploy Flask App
-  hosts: g1
-  become: yes
+- name: Setup Flask Environment and Deploy Flask Web App
+  hosts: all
+  become: true
+  remote_user: root
+  gather_facts: true
 
   tasks:
-    - name: Update package cache and install build tools (Ubuntu)
-      when: ansible_distribution == 'Ubuntu'
-      apt:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - build-essential
-        - python3-pip
+    - name: update package cache
+      package_facts:
+      when: ansible_pkg_mgr == "apt"
 
-    - name: Update package cache and install build tools (CentOS)
-      when: ansible_distribution == 'CentOS'
-      yum:
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - gcc
-        - gcc-c++
-        - python2-pip
+    - name: install necessary packages for apt
+      apt: 
+        name: 
+          - python3-pip
+          - python3-dev
+          - build-essential
+          - git
+          - ufw
+        state: present 
+      when: ansible_pkg_mgr == "apt"
 
-    - name: Update package cache and install build tools (Amazon Linux)
-      when: ansible_distribution == 'Amazon'
+    - name: update package cache
+      package_facts:
+      when: ansible_pkg_mgr == "dnf"
+
+    - name: Install necessary packages for dnf 
       dnf:
-        name: "{{ item }}"
+        name:
+          - python3-pip
+          - python3-devel
+          - python3-venv
+          - git
         state: present
-      with_items:
-        - gcc
-        - gcc-c++
-        - python3-pip
+      when: ansible_pkg_mgr == "dnf"
 
-    - name: Install Flask dependencies
-      pip:
-        name: uwsgi
-        state: present
+    - name: remove existing flask_dir
+      file: 
+        path: ~/flask_dir
+        state: absent
+      ignore_errors: yes
 
-    - name: Copy Flask app files
-      command: "rsync --delay-updates -F --compress --delete-after --archive --rsh=/usr/bin/ssh -S none -i /home/centos/linux.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null --rsync-path=sudo rsync --out-format=<<CHANGED>>%i %n%L /path/to/your/flask/app {{ ansible_user }}@{{ ansible_host }}:/var/www/flask_app"
-      delegate_to: localhost
+    - name: clone git repository
+      git:
+        repo: https://github.com/caligha/flask_web_app.git
+        dest: ~/flask_dir/
+        version: main
+
+    - name: create virtual environment
+      command: python3 -m venv ~/flask_dir/.myenv
+
+    - name: activate virtual environment
+      command: /bin/bash -c "source ~/flask_dir/.myenv/bin/activate"
+
+    - name: set Flask app environment variables
+      set_fact:
+        flask_app_env:
+          FLASK_APP: "~/flask_dir/app.py"
+          FLASK_RUN_HOST: "0.0.0.0"
+          FLASK_RUN_PORT: "5000"
+
+    - name: start flask web app
+      command: /bin/bash -c "{{ flask_app_env | to_json | b64encode | b64decode }} && flask run &"
