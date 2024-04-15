@@ -16,7 +16,7 @@
       command: python3 -m venv /path/to/your/virtual/environment
 
     - name: install python3-venv package (Amazon Linux)
-      when: ansible_pkg_mgr == "yum"  # Assuming yum is the package manager for Amazon Linux
+      when: ansible_pkg_mgr == "dnf"
       yum:
         name: python3-venv
         state: present
@@ -33,8 +33,17 @@
         dest: ~/flask_dir/
         version: main
 
-    - name: create virtual environment
+    - name: create virtual environment (Ubuntu)
       command: python3 -m venv ~/flask_dir/.myenv
+      when: ansible_pkg_mgr == "apt"
+
+    - name: create virtual environment (CentOS)
+      command: python3 -m venv ~/flask_dir/.myenv
+      when: ansible_pkg_mgr == "yum"
+
+    - name: create virtual environment (Amazon Linux)
+      command: python3 -m venv ~/flask_dir/.myenv
+      when: ansible_pkg_mgr == "dnf"
 
     - name: activate virtual environment
       command: /bin/bash -c "source ~/flask_dir/.myenv/bin/activate"
