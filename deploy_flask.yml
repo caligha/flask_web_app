@@ -5,34 +5,35 @@
   gather_facts: true
 
   tasks:
-    - name: update package cache
-      package_facts:
+    - name: update package cache and install git (Ubuntu)
       when: ansible_pkg_mgr == "apt"
-
-    - name: install necessary packages for apt
-      apt: 
-        name: 
-          - python3-pip
-          - python3-dev
-          - build-essential
-          - git
-          - ufw
-        state: present 
-      when: ansible_pkg_mgr == "apt"
-
-    - name: update package cache
-      package_facts:
-      when: ansible_pkg_mgr == "dnf"
-
-    - name: Install necessary packages for dnf 
-      dnf:
-        name:
-          - python3-pip
-          - python3-devel
-          - python3-venv
-          - git
+      apt:
+        name: git
         state: present
+
+    - name: update package cache and install git (CentOS)
+      when: ansible_pkg_mgr == "yum"
+      dnf:
+        name: git
+        state: present
+
+    - name: update package cache and install git (Amazon Linux)
       when: ansible_pkg_mgr == "dnf"
+      yum:
+        name: git
+        state: present
+
+    - name: install python3-venv package (Ubuntu)
+      when: ansible_pkg_mgr == "apt"
+      apt:
+        name: python3-venv
+        state: present
+
+    - name: install python3-venv package (Amazon Linux)
+      when: ansible_pkg_mgr == "dnf"
+      yum:
+        name: python3-venv
+        state: present
 
     - name: remove existing flask_dir
       file: 
