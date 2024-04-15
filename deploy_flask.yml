@@ -1,0 +1,61 @@
+---
+- hosts: g1
+  become: yes
+  tasks:
+    - name: Update package cache (Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Update package cache (CentOS)
+      yum:
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: Update package cache (Amazon Linux)
+      yum:
+        update_cache: yes
+      when: ansible_distribution == "Amazon"
+
+    - name: Install Python 3 and pip (Ubuntu)
+      package:
+        name: python3
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Python 3 and pip (CentOS)
+      package:
+        name: python3
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Install Python 3 and pip (Amazon Linux)
+      package:
+        name: python3
+        state: present
+      when: ansible_distribution == "Amazon"
+
+    - name: Install Flask dependencies
+      pip:
+        name:
+          - uwsgi  # Example dependency, adjust as needed
+        state: present
+
+    - name: Copy Flask app files
+      synchronize:
+        src: /path/to/your/flask/app
+        dest: /var/www/flask_app
+        delete: yes
+      become: yes
+      tags:
+        - deploy
+
+    - name: Set up uWSGI service
+      systemd:
+        name: uwsgi
+        enabled: yes
+        state: started
+        daemon_reload: yes
+      become: yes
+      tags:
+        - configure
