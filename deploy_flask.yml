@@ -5,53 +5,73 @@
     - name: Update package cache (Ubuntu)
       apt:
         update_cache: yes
-      when: ansible_distribution == "Ubuntu"
 
     - name: Update package cache (CentOS)
       yum:
         name: '*'
         state: latest
-      when: ansible_distribution == "CentOS"
 
     - name: Update package cache (Amazon Linux)
-      dnf:
+      yum:
         name: '*'
         state: latest
-      when: ansible_distribution == "Amazon"
 
     - name: Install Python 3 and pip (Ubuntu)
       package:
-        name: 
-          - python3
-          - python3-pip  # Install pip for Python 3
+        name: python3
         state: present
-      when: ansible_distribution == "Ubuntu"
 
     - name: Install Python 3 and pip (CentOS)
       package:
-        name:
-          - python3
-          - python3-pip
+        name: python3
         state: present
-      when: ansible_distribution == "CentOS"
 
     - name: Install Python 3 and pip (Amazon Linux)
+      package:
+        name: python3
+        state: present
+
+    - name: Install pip for Python 3 (Ubuntu)
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install pip for Python 3 (CentOS)
+      yum:
+        name: python3-pip
+        state: present
+
+    - name: Install pip for Python 3 (Amazon Linux)
+      yum:
+        name: python3-pip
+        state: present
+
+    - name: Install build tools (Ubuntu)
+      apt:
+        name:
+          - build-essential
+          - python3-dev
+      state: present
+
+    - name: Install build tools (CentOS)
       yum:
         name:
-          - python3
-          - python3-pip
-        state: present
-      when: ansible_distribution == "Amazon"
+          - gcc
+          - python3-devel
+      state: present
+
+    - name: Install build tools (Amazon Linux)
+      dnf:
+        name:
+          - gcc
+          - python3-devel
+      state: present
 
     - name: Install Flask dependencies
       pip:
         name:
           - uwsgi  # Example dependency, adjust as needed
         state: present
-      become: yes
-      vars:
-        ansible_python_interpreter: /usr/bin/python3  # Specify Python interpreter explicitly
-      ignore_errors: yes  # Ignore errors in case Flask dependencies are already installed
 
     - name: Copy Flask app files
       synchronize:
