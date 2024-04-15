@@ -5,46 +5,55 @@
     - name: Update package cache (Ubuntu)
       apt:
         update_cache: yes
+      when: ansible_distribution == "Ubuntu"
 
     - name: Update package cache (CentOS)
       yum:
         name: '*'
         state: latest
+      when: ansible_distribution == "CentOS"
 
     - name: Update package cache (Amazon Linux)
       yum:
         name: '*'
         state: latest
+      when: ansible_distribution == "Amazon"
 
     - name: Install Python 3 and pip (Ubuntu)
       package:
         name: python3
         state: present
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install Python 3 and pip (CentOS)
       package:
         name: python3
         state: present
+      when: ansible_distribution == "CentOS"
 
     - name: Install Python 3 and pip (Amazon Linux)
       package:
         name: python3
         state: present
+      when: ansible_distribution == "Amazon"
 
     - name: Install pip for Python 3 (Ubuntu)
       apt:
         name: python3-pip
         state: present
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install pip for Python 3 (CentOS)
       yum:
         name: python3-pip
         state: present
+      when: ansible_distribution == "CentOS"
 
     - name: Install pip for Python 3 (Amazon Linux)
       yum:
         name: python3-pip
         state: present
+      when: ansible_distribution == "Amazon"
 
     - name: Install build tools (Ubuntu)
       apt:
@@ -52,6 +61,7 @@
           - build-essential
           - python3-dev
       state: present
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install build tools (CentOS)
       yum:
@@ -59,13 +69,15 @@
           - gcc
           - python3-devel
       state: present
+      when: ansible_distribution == "CentOS"
 
     - name: Install build tools (Amazon Linux)
-      dnf:
+      yum:
         name:
           - gcc
           - python3-devel
       state: present
+      when: ansible_distribution == "Amazon"
 
     - name: Install Flask dependencies
       pip:
@@ -86,8 +98,4 @@
       systemd:
         name: uwsgi
         enabled: yes
-        state: started
-        daemon_reload: yes
-      become: yes
-      tags:
-        - configure
+     
