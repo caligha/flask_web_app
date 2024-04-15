@@ -13,7 +13,7 @@
 
     - name: update package cache and install git (CentOS)
       when: ansible_pkg_mgr == "yum"
-      yum:
+      dnf:  # Use dnf module instead of yum for CentOS
         name: git
         state: present
 
@@ -31,7 +31,7 @@
 
     - name: install python3-venv package (CentOS)
       when: ansible_pkg_mgr == "yum"
-      yum:
+      dnf:  # Use dnf module instead of yum for CentOS
         name: python3-venv
         state: present
 
@@ -51,4 +51,4 @@
       git:
         repo: https://github.com/caligha/flask_web_app.git
         dest: ~/flask_dir/
- 
+        version: main
