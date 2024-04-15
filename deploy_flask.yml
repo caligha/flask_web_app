@@ -9,12 +9,14 @@
 
     - name: Update package cache (CentOS)
       yum:
-        update_cache: yes
+        name: '*'
+        state: latest
       when: ansible_distribution == "CentOS"
 
     - name: Update package cache (Amazon Linux)
       yum:
-        update_cache: yes
+        name: '*'
+        state: latest
       when: ansible_distribution == "Amazon"
 
     - name: Install Python 3 and pip (Ubuntu)
@@ -32,6 +34,24 @@
     - name: Install Python 3 and pip (Amazon Linux)
       package:
         name: python3
+        state: present
+      when: ansible_distribution == "Amazon"
+
+    - name: Install pip for Python 3 (Ubuntu)
+      apt:
+        name: python3-pip
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install pip for Python 3 (CentOS)
+      yum:
+        name: python3-pip
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Install pip for Python 3 (Amazon Linux)
+      yum:
+        name: python3-pip
         state: present
       when: ansible_distribution == "Amazon"
 
