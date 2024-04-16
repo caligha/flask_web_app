@@ -3,6 +3,26 @@
   become: true
   remote_user: root
   gather_facts: true
+  tasks:
+    - name: Install git on CentOS 
+      yum:
+        name: git
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Install git on Amazon Linux 
+      dnf:
+        name: git
+        state: present
+      when: - ansible_distribution == "Amazon"
+            - ansible_distribution_major_version == "2"  # Check if it's Amazon Linux 2
+
+    - name: Install git on Ubuntu
+      apt:
+        name: git
+        state: present
+        when: ansible_distribution == "Ubuntu"
+
 
   tasks:
     - name: install python3-venv package (Ubuntu)
