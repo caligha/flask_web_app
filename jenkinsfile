@@ -2,36 +2,33 @@ pipeline {
     agent any
     
     stages {
-        stage('Checkout') {
+        stage('SCM Checkout') {
             steps {
-                // Checkout the source code from Git repository
-                git url: 'https://github.com/caligha/flask_web_app.git'
+                git 'https://github.com/caligha/flask_web_app.git'
             }
         }
         
-        stage('Deploy') {
+        stage('Install Flask Dependencies') {
             steps {
-                // Run Ansible playbook for deployment
-                ansiblePlaybook(
-                    playbook: '/home/centos/flask_web_app/deploy_flask.yml',
-                    inventory: '/home/centos/flask_web_app/inventory',
-                    credentialsId: 'your-ansible-credentials-id'
-                )
+                sh 'pip install -r requirements.txt' // Assuming your dependencies are listed in a requirements.txt file
             }
         }
         
-        stage('Build') {
+        stage('Test') {
             steps {
-                // Install dependencies and run tests
-                sh 'pip install -r requirements.txt'
-                sh 'python test.py'
+                sh 'python -m unittest' // Assuming you have tests for your Flask app
             }
         }
-    }
-    
-    post {
-        always {
-            // Any post-build actions can go here
+        
+        stage('Execute Ansible') {
+            steps {
+                ansiblePlaybook credentialsId: 'ansible-ssh', // SSH credentials for Ansible
+                                disableHostKeyChecking: true, // Disables SSH host key checking
+                                installation: 'ansible', // Specifies the installation of Ansible
+                                inventory: 'inventory', // Specifies the inventory file
+                                playbook: 'deploy_flask.yml', // Specifies the Ansible playbook to execute
+                                vaultCredentialsId: 'ansible-vault-cred' // Optional: Ansible Vault credentials if using vault
+            }
         }
     }
 }
