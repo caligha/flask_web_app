@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SCM Checkout') {
             steps {
-                git 'https://github.com/caligha/flask_web_app.git'
+                git 'https://github.com/caligha/flask_web_app'
             }
         }
         
